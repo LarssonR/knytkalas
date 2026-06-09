@@ -5,6 +5,8 @@ import { DishList } from "./DishList";
 import { AddDishForm } from "./AddDishForm";
 import { UpdatePartySize } from "./UpdatePartySize";
 import { EconomySummary } from "@/app/admin/[admin_token]/EconomySummary";
+import { Tabs } from "@/components/Tabs";
+import { GuestsList } from "@/components/GuestsList";
 import type { Guest } from "@/lib/database.types";
 
 interface Props {
@@ -17,7 +19,6 @@ export default async function EventPage({ params, searchParams }: Props) {
   const { guest_id } = await searchParams;
 
   const data = await getEventByGuestToken(guest_token);
-
   if (!data) notFound();
 
   const { event, guests, dishes } = data;
@@ -26,11 +27,7 @@ export default async function EventPage({ params, searchParams }: Props) {
     ? guests.find((g) => g.id === guest_id)
     : undefined;
 
-  const mealLabels: Record<string, string> = {
-    lunch: "Lunch",
-    dinner: "Middag",
-  };
-
+  const mealLabels: Record<string, string> = { lunch: "Lunch", dinner: "Middag" };
   const categoryLabels: Record<string, string> = {
     starter: "Förrätt",
     main: "Huvudrätt",
@@ -40,6 +37,31 @@ export default async function EventPage({ params, searchParams }: Props) {
     bread: "Bröd",
     other: "",
   };
+
+  const tabs = [
+    {
+      label: "Rätter",
+      content: (
+        <DishList
+          dishes={dishes}
+          guests={guests}
+          currentGuestId={currentGuest?.id}
+          guestToken={guest_token}
+          economyEnabled={event.economy_enabled}
+          mealLabels={mealLabels}
+          categoryLabels={categoryLabels}
+          deleteDish={deleteDish}
+        />
+      ),
+    },
+    {
+      label: "Deltagare",
+      content: <GuestsList guests={guests} />,
+    },
+    ...(event.economy_enabled
+      ? [{ label: "Ekonomi", content: <EconomySummary guests={guests} dishes={dishes} /> }]
+      : []),
+  ];
 
   return (
     <div>
@@ -60,28 +82,12 @@ export default async function EventPage({ params, searchParams }: Props) {
         </p>
       </div>
 
-      {/* Rättöversikt — synlig för alla */}
-      <DishList
-        dishes={dishes}
-        guests={guests}
-        currentGuestId={currentGuest?.id}
-        guestToken={guest_token}
-        economyEnabled={event.economy_enabled}
-        mealLabels={mealLabels}
-        categoryLabels={categoryLabels}
-        deleteDish={deleteDish}
-      />
+      {/* Flikar */}
+      <Tabs tabs={tabs} />
 
-      {/* Ekonomisammanställning — visas om aktiverat */}
-      {event.economy_enabled && (
-        <div className="mt-8">
-          <EconomySummary guests={guests} dishes={dishes} />
-        </div>
-      )}
-
+      {/* Registrering / lägg till rätt */}
       <div className="mt-8 border-t border-gray-200 pt-6">
         {!currentGuest ? (
-          // Ej inloggad — visa registreringsformulär
           <GuestRegistration
             eventId={event.id}
             guestToken={guest_token}

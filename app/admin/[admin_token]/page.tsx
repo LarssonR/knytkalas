@@ -5,7 +5,9 @@ import { EconomySummary } from "./EconomySummary";
 import { AdminDishList } from "./AdminDishList";
 import { GuestRegistration } from "@/app/event/[guest_token]/GuestRegistration";
 import { AddDishForm } from "@/app/event/[guest_token]/AddDishForm";
-import type { Dish, Guest } from "@/lib/database.types";
+import { Tabs } from "@/components/Tabs";
+import { GuestsList } from "@/components/GuestsList";
+import type { Guest } from "@/lib/database.types";
 
 interface Props {
   params: Promise<{ admin_token: string }>;
@@ -36,6 +38,30 @@ export default async function AdminPage({ params, searchParams }: Props) {
     ? guests.find((g) => g.id === guest_id)
     : undefined;
 
+  const tabs = [
+    {
+      label: "Rätter",
+      content: (
+        <AdminDishList
+          dishes={dishes}
+          guests={guests}
+          adminToken={admin_token}
+          economyEnabled={event.economy_enabled}
+          mealLabels={mealLabels}
+          categoryLabels={categoryLabels}
+          deleteDish={deleteDish}
+        />
+      ),
+    },
+    {
+      label: "Deltagare",
+      content: <GuestsList guests={guests} />,
+    },
+    ...(event.economy_enabled
+      ? [{ label: "Ekonomi", content: <EconomySummary guests={guests} dishes={dishes} /> }]
+      : []),
+  ];
+
   return (
     <div>
       {/* Sidhuvud */}
@@ -65,7 +91,9 @@ export default async function AdminPage({ params, searchParams }: Props) {
           <p className="text-sm text-gray-500">sällskap</p>
         </div>
         <div className="bg-white rounded-xl shadow-sm p-4 text-center">
-          <p className="text-2xl font-bold text-amber-600">{guests.reduce((sum, g) => sum + (g.party_size ?? 1), 0)}</p>
+          <p className="text-2xl font-bold text-amber-600">
+            {guests.reduce((sum, g) => sum + (g.party_size ?? 1), 0)}
+          </p>
           <p className="text-sm text-gray-500">besökare</p>
         </div>
         <div className="bg-white rounded-xl shadow-sm p-4 text-center">
@@ -74,21 +102,8 @@ export default async function AdminPage({ params, searchParams }: Props) {
         </div>
       </div>
 
-      {/* Rättöversikt — admin kan ta bort alla rätter */}
-      <AdminDishList
-        dishes={dishes}
-        guests={guests}
-        adminToken={admin_token}
-        economyEnabled={event.economy_enabled}
-        mealLabels={mealLabels}
-        categoryLabels={categoryLabels}
-        deleteDish={deleteDish}
-      />
-
-      {/* Ekonomisammanställning */}
-      {event.economy_enabled && (
-        <EconomySummary guests={guests} dishes={dishes} />
-      )}
+      {/* Flikar */}
+      <Tabs tabs={tabs} />
 
       {/* Admin lägger till sina egna rätter */}
       <div className="mt-8 border-t border-gray-200 pt-6">
@@ -98,7 +113,7 @@ export default async function AdminPage({ params, searchParams }: Props) {
         {!currentGuest ? (
           <GuestRegistration
             eventId={event.id}
-            guestToken={`admin-${admin_token}`}
+            guestToken={event.guest_token}
             registerGuest={registerGuest}
             redirectBase={`/admin/${admin_token}`}
           />
