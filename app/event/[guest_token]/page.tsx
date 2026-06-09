@@ -3,6 +3,7 @@ import { getEventByGuestToken, registerGuest, addDish, deleteDish } from "@/app/
 import { GuestRegistration } from "./GuestRegistration";
 import { DishList } from "./DishList";
 import { AddDishForm } from "./AddDishForm";
+import { EconomySummary } from "@/app/admin/[admin_token]/EconomySummary";
 import type { Guest } from "@/lib/database.types";
 
 interface Props {
@@ -69,6 +70,13 @@ export default async function EventPage({ params, searchParams }: Props) {
         categoryLabels={categoryLabels}
         deleteDish={deleteDish}
       />
+
+      {/* Ekonomisammanställning — visas om aktiverat */}
+      {event.economy_enabled && (
+        <div className="mt-8">
+          <EconomySummary guests={guests} dishes={dishes} />
+        </div>
+      )}
 
       <div className="mt-8 border-t border-gray-200 pt-6">
         {!currentGuest ? (
