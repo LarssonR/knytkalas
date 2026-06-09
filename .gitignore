@@ -1,0 +1,16 @@
+# Miljövariabler — läggs ALDRIG upp på GitHub
+.env
+.env.local
+.env.production
+.env.*.local
+
+# Next.js
+.next/
+out/
+
+# Beroenden
+node_modules/
+
+# Misc
+.DS_Store
+*.pem
