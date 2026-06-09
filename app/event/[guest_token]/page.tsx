@@ -33,10 +33,15 @@ export default async function EventPage({ params, searchParams }: Props) {
     starter: "Förrätt",
     main: "Huvudrätt",
     dessert: "Efterrätt",
+    side: "Tillbehör",
+    drink: "Dryck",
+    bread: "Bröd",
+    other: "",
   };
 
   return (
     <div>
+      {/* Evenemangshuvud */}
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-amber-700">{event.name}</h1>
         <p className="text-gray-500 mt-1">
@@ -48,37 +53,12 @@ export default async function EventPage({ params, searchParams }: Props) {
           })}{" "}
           · {event.location}
         </p>
+        <p className="text-sm text-gray-400 mt-1">
+          {guests.length} {guests.length === 1 ? "gäst" : "gäster"} · {dishes.length} {dishes.length === 1 ? "rätt" : "rätter"}
+        </p>
       </div>
 
-      {!currentGuest ? (
-        // Gästen är inte registrerad — visa registreringsformulär
-        <GuestRegistration
-          eventId={event.id}
-          guestToken={guest_token}
-          registerGuest={registerGuest}
-        />
-      ) : (
-        <>
-          <div className="bg-white rounded-2xl shadow-md p-4 mb-6">
-            <p className="text-sm text-gray-500">
-              Inloggad som{" "}
-              <span className="font-semibold text-gray-700">
-                {currentGuest.name}
-              </span>
-            </p>
-          </div>
-
-          {/* Lägg till rätt */}
-          <AddDishForm
-            guestId={currentGuest.id}
-            guestToken={guest_token}
-            economyEnabled={event.economy_enabled}
-            addDish={addDish}
-          />
-        </>
-      )}
-
-      {/* Lista på alla rätter */}
+      {/* Rättöversikt — synlig för alla */}
       <DishList
         dishes={dishes}
         guests={guests}
@@ -89,6 +69,34 @@ export default async function EventPage({ params, searchParams }: Props) {
         categoryLabels={categoryLabels}
         deleteDish={deleteDish}
       />
+
+      <div className="mt-8 border-t border-gray-200 pt-6">
+        {!currentGuest ? (
+          // Ej inloggad — visa registreringsformulär
+          <GuestRegistration
+            eventId={event.id}
+            guestToken={guest_token}
+            registerGuest={registerGuest}
+          />
+        ) : (
+          <>
+            <div className="bg-white rounded-2xl shadow-md p-4 mb-4">
+              <p className="text-sm text-gray-500">
+                Inloggad som{" "}
+                <span className="font-semibold text-gray-700">
+                  {currentGuest.name}
+                </span>
+              </p>
+            </div>
+            <AddDishForm
+              guestId={currentGuest.id}
+              guestToken={guest_token}
+              economyEnabled={event.economy_enabled}
+              addDish={addDish}
+            />
+          </>
+        )}
+      </div>
     </div>
   );
 }

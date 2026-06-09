@@ -32,7 +32,7 @@ create table dishes (
   guest_id uuid not null references guests(id) on delete cascade,
   name text not null,
   meal text not null check (meal in ('lunch', 'dinner')),
-  category text not null check (category in ('starter', 'main', 'dessert')),
+  category text not null check (category in ('starter', 'main', 'dessert', 'side', 'drink', 'bread', 'other')),
   contains_gluten boolean not null default false,
   contains_lactose boolean not null default false,
   cost_sek numeric(10, 2) null,

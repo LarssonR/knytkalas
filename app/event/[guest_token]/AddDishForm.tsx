@@ -93,6 +93,10 @@ export function AddDishForm({ guestId, guestToken, economyEnabled, addDish }: Pr
                   <option value="starter">Förrätt</option>
                   <option value="main">Huvudrätt</option>
                   <option value="dessert">Efterrätt</option>
+                  <option value="side">Tillbehör</option>
+                  <option value="drink">Dryck</option>
+                  <option value="bread">Bröd</option>
+                  <option value="other"></option>
                 </select>
               </div>
             </div>

@@ -8,9 +8,10 @@ interface Props {
   eventId: string;
   guestToken: string;
   registerGuest: (eventId: string, name: string, phone: string) => Promise<Guest>;
+  redirectBase?: string; // Om satt används denna istället för /event/${guestToken}
 }
 
-export function GuestRegistration({ eventId, guestToken, registerGuest }: Props) {
+export function GuestRegistration({ eventId, guestToken, registerGuest, redirectBase }: Props) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -26,7 +27,8 @@ export function GuestRegistration({ eventId, guestToken, registerGuest }: Props)
 
     try {
       const guest = await registerGuest(eventId, name, phone);
-      router.replace(`/event/${guestToken}?guest_id=${guest.id}`);
+      const base = redirectBase ?? `/event/${guestToken}`;
+      router.replace(`${base}?guest_id=${guest.id}`);
     } catch {
       setError("Något gick fel. Försök igen.");
     } finally {

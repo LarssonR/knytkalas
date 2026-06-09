@@ -7,8 +7,7 @@ import type { Dish, Guest } from "@/lib/database.types";
 interface Props {
   dishes: Dish[];
   guests: Guest[];
-  currentGuestId?: string;
-  guestToken: string;
+  adminToken: string;
   economyEnabled: boolean;
   mealLabels: Record<string, string>;
   categoryLabels: Record<string, string>;
@@ -18,11 +17,10 @@ interface Props {
 const mealOrder = ["lunch", "dinner"];
 const categoryOrder = ["starter", "main", "dessert", "side", "drink", "bread", "other"];
 
-export function DishList({
+export function AdminDishList({
   dishes,
   guests,
-  currentGuestId,
-  guestToken,
+  adminToken,
   economyEnabled,
   mealLabels,
   categoryLabels,
@@ -36,7 +34,8 @@ export function DishList({
   async function handleDelete(dishId: string) {
     setDeleting(dishId);
     try {
-      await deleteDish(dishId, guestToken);
+      // Admin skickar admin_token som identifierare — actions hanterar det
+      await deleteDish(dishId, adminToken);
       router.refresh();
     } finally {
       setDeleting(null);
@@ -45,24 +44,25 @@ export function DishList({
 
   if (dishes.length === 0) {
     return (
-      <div className="text-center py-12 text-gray-400">
-        Inga rätter har lagts till än.
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold text-gray-700 mb-4">Alla rätter</h2>
+        <p className="text-gray-400 text-center py-8">
+          Inga rätter har lagts till än.
+        </p>
       </div>
     );
   }
 
-  // Gruppera per måltid och kategori
   const grouped: Record<string, Record<string, Dish[]>> = {};
   for (const dish of dishes) {
     if (!grouped[dish.meal]) grouped[dish.meal] = {};
-    if (!grouped[dish.meal][dish.category])
-      grouped[dish.meal][dish.category] = [];
+    if (!grouped[dish.meal][dish.category]) grouped[dish.meal][dish.category] = [];
     grouped[dish.meal][dish.category].push(dish);
   }
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-gray-700">Vad tas med?</h2>
+    <div className="space-y-6 mb-8">
+      <h2 className="text-xl font-semibold text-gray-700">Alla rätter</h2>
 
       {mealOrder
         .filter((meal) => grouped[meal])
@@ -87,13 +87,10 @@ export function DishList({
                         className="bg-white rounded-xl shadow-sm p-4 flex items-start justify-between gap-2"
                       >
                         <div>
-                          <p className="font-medium text-gray-800">
-                            {dish.name}
-                          </p>
+                          <p className="font-medium text-gray-800">{dish.name}</p>
                           <p className="text-sm text-gray-500">
-                            {guestMap[dish.guest_id] ?? "Okänd gäst"}
+                            {guestMap[dish.guest_id] ?? "Okänd"}
                           </p>
-
                           <div className="flex gap-2 mt-1">
                             {dish.contains_gluten && (
                               <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">
@@ -106,7 +103,6 @@ export function DishList({
                               </span>
                             )}
                           </div>
-
                           {economyEnabled && dish.cost_sek !== null && (
                             <p className="text-sm text-gray-500 mt-1">
                               {dish.cost_sek} kr
@@ -114,16 +110,14 @@ export function DishList({
                           )}
                         </div>
 
-                        {/* Ta bort-knapp visas bara för gästens egna rätter */}
-                        {dish.guest_id === currentGuestId && (
-                          <button
-                            onClick={() => handleDelete(dish.id)}
-                            disabled={deleting === dish.id}
-                            className="text-sm text-red-400 hover:text-red-600 transition-colors shrink-0"
-                          >
-                            {deleting === dish.id ? "..." : "Ta bort"}
-                          </button>
-                        )}
+                        {/* Admin kan ta bort alla rätter */}
+                        <button
+                          onClick={() => handleDelete(dish.id)}
+                          disabled={deleting === dish.id}
+                          className="text-sm text-red-400 hover:text-red-600 transition-colors shrink-0"
+                        >
+                          {deleting === dish.id ? "..." : "Ta bort"}
+                        </button>
                       </div>
                     ))}
                   </div>

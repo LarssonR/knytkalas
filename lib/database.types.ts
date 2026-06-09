@@ -1,5 +1,5 @@
 export type Meal = "lunch" | "dinner";
-export type Category = "starter" | "main" | "dessert";
+export type Category = "starter" | "main" | "dessert" | "side" | "drink" | "bread" | "other";
 
 export interface Event {
   id: string;
