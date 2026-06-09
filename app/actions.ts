@@ -27,7 +27,8 @@ export async function createEvent(formData: FormData) {
 export async function registerGuest(
   eventId: string,
   name: string,
-  phone: string
+  phone: string,
+  partySize: number = 1
 ) {
   const supabase = createServiceClient();
 
@@ -43,7 +44,7 @@ export async function registerGuest(
 
   const { data, error } = await supabase
     .from("guests")
-    .insert({ event_id: eventId, name, phone })
+    .insert({ event_id: eventId, name, phone, party_size: partySize })
     .select()
     .single();
 
@@ -90,6 +91,18 @@ export async function addDish(formData: FormData, guestToken: string) {
   if (error) throw new Error("Kunde inte lägga till rätten: " + error.message);
 
   revalidatePath(`/event/${guestToken}`);
+}
+
+// Uppdatera antal i sällskapet
+export async function updatePartySize(guestId: string, partySize: number) {
+  const supabase = createServiceClient();
+
+  const { error } = await supabase
+    .from("guests")
+    .update({ party_size: Math.max(1, partySize) })
+    .eq("id", guestId);
+
+  if (error) throw new Error("Kunde inte uppdatera antal: " + error.message);
 }
 
 // Ta bort en rätt

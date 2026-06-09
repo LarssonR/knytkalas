@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
-import { getEventByGuestToken, registerGuest, addDish, deleteDish } from "@/app/actions";
+import { getEventByGuestToken, registerGuest, addDish, deleteDish, updatePartySize } from "@/app/actions";
 import { GuestRegistration } from "./GuestRegistration";
 import { DishList } from "./DishList";
 import { AddDishForm } from "./AddDishForm";
+import { UpdatePartySize } from "./UpdatePartySize";
 import { EconomySummary } from "@/app/admin/[admin_token]/EconomySummary";
 import type { Guest } from "@/lib/database.types";
 
@@ -55,7 +56,7 @@ export default async function EventPage({ params, searchParams }: Props) {
           · {event.location}
         </p>
         <p className="text-sm text-gray-400 mt-1">
-          {guests.length} {guests.length === 1 ? "gäst" : "gäster"} · {dishes.length} {dishes.length === 1 ? "rätt" : "rätter"}
+          {guests.reduce((sum, g) => sum + (g.party_size ?? 1), 0)} besökare · {dishes.length} {dishes.length === 1 ? "rätt" : "rätter"}
         </p>
       </div>
 
@@ -95,6 +96,12 @@ export default async function EventPage({ params, searchParams }: Props) {
                   {currentGuest.name}
                 </span>
               </p>
+              <UpdatePartySize
+                guestId={currentGuest.id}
+                currentSize={currentGuest.party_size ?? 1}
+                updatePartySize={updatePartySize}
+                guestToken={guest_token}
+              />
             </div>
             <AddDishForm
               guestId={currentGuest.id}

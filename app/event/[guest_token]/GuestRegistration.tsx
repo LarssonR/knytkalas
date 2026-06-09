@@ -7,7 +7,7 @@ import type { Guest } from "@/lib/database.types";
 interface Props {
   eventId: string;
   guestToken: string;
-  registerGuest: (eventId: string, name: string, phone: string) => Promise<Guest>;
+  registerGuest: (eventId: string, name: string, phone: string, partySize?: number) => Promise<Guest>;
   redirectBase?: string; // Om satt används denna istället för /event/${guestToken}
 }
 
@@ -26,7 +26,9 @@ export function GuestRegistration({ eventId, guestToken, registerGuest, redirect
     const phone = formData.get("phone") as string;
 
     try {
-      const guest = await registerGuest(eventId, name, phone);
+      const partySizeRaw = formData.get("party_size") as string;
+      const partySize = Math.max(1, parseInt(partySizeRaw) || 1);
+      const guest = await registerGuest(eventId, name, phone, partySize);
       const base = redirectBase ?? `/event/${guestToken}`;
       router.replace(`${base}?guest_id=${guest.id}`);
     } catch {
@@ -66,6 +68,20 @@ export function GuestRegistration({ eventId, guestToken, registerGuest, redirect
             name="phone"
             required
             placeholder="070-123 45 67"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-600 mb-1">
+            Hur många är ni? (inklusive dig själv)
+          </label>
+          <input
+            type="number"
+            name="party_size"
+            min="1"
+            defaultValue="1"
+            required
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400"
           />
         </div>

@@ -59,10 +59,14 @@ export default async function AdminPage({ params, searchParams }: Props) {
       <ShareLink guestToken={event.guest_token} />
 
       {/* Statistik */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-3 gap-4 mb-6">
         <div className="bg-white rounded-xl shadow-sm p-4 text-center">
           <p className="text-2xl font-bold text-amber-600">{guests.length}</p>
-          <p className="text-sm text-gray-500">gäster</p>
+          <p className="text-sm text-gray-500">sällskap</p>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm p-4 text-center">
+          <p className="text-2xl font-bold text-amber-600">{guests.reduce((sum, g) => sum + (g.party_size ?? 1), 0)}</p>
+          <p className="text-sm text-gray-500">besökare</p>
         </div>
         <div className="bg-white rounded-xl shadow-sm p-4 text-center">
           <p className="text-2xl font-bold text-amber-600">{dishes.length}</p>

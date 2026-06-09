@@ -17,6 +17,7 @@ export interface Guest {
   event_id: string;
   name: string;
   phone: string;
+  party_size: number;
   created_at: string;
 }
 
